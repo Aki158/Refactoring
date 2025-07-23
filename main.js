@@ -1,7 +1,3 @@
-function playFor(aPerformance) {
-    return plays[aPerformance.playID];
-}
-
 function statement(invoice, plays) {
     let totalAmount = 0;
     let volumeCredits = 0;
@@ -13,30 +9,8 @@ function statement(invoice, plays) {
         }).format;
 
     for (let perf of invoice.performances) {
-        let result = amountFor(perf);
+        volumeCredits += volumeCreditsFor(perf)
 
-        switch (playFor(perf).type) {
-            case "tragedy":
-                result = 40000;
-                if (perf.audience > 30) {
-                    result += 1000 * (perf.audience - 30);
-                }
-                break;
-            case "comedy":
-                result = 30000;
-                if (perf.audience > 20) {
-                    result += 10000 + 500 * (perf.audience - 20);
-                }
-                result += 300 * perf.audience;
-                break;
-            default:
-                throw new Error(`unknown type: ${playFor(perf).type}`);
-        }
-
-        // ボリューム特典のポイントを加算
-        volumeCredits += Math.max(perf.audience - 30, 0);
-        // 喜劇のときは10人につき、さらにポイントを加算
-        if ("comedy" === playFor(perf).type) volumeCredits += Math.floor(perf.audience / 5);
         // 注文の内訳を出力
         result += `  ${playFor(perf).name}: ${format(amountFor(perf) / 100)} (${perf.audience} seats)\n`;
         totalAmount += amountFor(perf);
@@ -44,28 +18,37 @@ function statement(invoice, plays) {
     result += `Amount owed is ${format(totalAmount / 100)}\n`;
     result += `You earned ${volumeCredits} credits\n`;
     return result;
-}
 
-function amountFor(aPerformance) {
-    let result = 0;
-    switch (playFor(perf).type) {
-        case "tragedy":
-            result = 40000;
-            if (aPerformance.audience > 30) {
-                result += 1000 * (aPerformance.audience - 30);
-            }
-            break;
-        case "comedy":
-            result = 30000;
-            if (aPerformance.audience > 20) {
-                result += 10000 + 500 * (aPerformance.audience - 20);
-            }
-            result += 300 * aPerformance.audience;
-            break;
-        default:
-            throw new Error(`unknown type: ${playFor(perf).type}`);
+    function volumeCreditsFor(aPerformance) {
+        let result = 0;
+        result += Math.max(aPerformance.audience - 30, 0);
+        if ("comedy" === playFor(aPerformance).type) result += Math.floor(aPerformance.audience / 5);
+        return result;
     }
-    return result;
+
+    function playFor(aPerformance) {
+        return plays[aPerformance.playID];
+    }
+
+    function amountFor(aPerformance) {
+        let result = 0;
+        switch (playFor(perf).type) {
+            case "tragedy":
+                result = 40000;
+                if (aPerformance.audience > 30) {
+                    result += 1000 * (aPerformance.audience - 30);
+                }
+                break;
+            case "comedy":
+                result = 30000;
+                if (aPerformance.audience > 20) {
+                    result += 10000 + 500 * (aPerformance.audience - 20);
+                }
+                result += 300 * aPerformance.audience;
+                break;
+            default:
+                throw new Error(`unknown type: ${playFor(perf).type}`);
+        }
+        return result;
+    }
 }
-
-
